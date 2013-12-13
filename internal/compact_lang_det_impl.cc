@@ -949,7 +949,7 @@ static const int kGoodFirstT3MinBytes = 24;         // <this => no first
 // maybe fold this back in earlier
 //
 void RemoveUnreliableLanguages(DocTote* doc_tote,
-                               bool FLAGS_cld2_html, bool FLAGS_cld2_quiet) {
+                               bool FLAGS_cld2_html, bool FLAGS_cld2_quiet, bool FLAGS_cld2_liberal) {
   // Prepass to merge some low-reliablility languages
   // TODO: this shouldn't really reach in to the internal structure of doc_tote
   int total_bytes = 0;
@@ -1023,32 +1023,34 @@ void RemoveUnreliableLanguages(DocTote* doc_tote,
 
 
   // Pass to delete any remaining unreliable languages
-  for (int sub = 0; sub < doc_tote->MaxSize(); ++sub) {
-    int plang = doc_tote->Key(sub);
-    if (plang == DocTote::kUnusedKey) {continue;}               // Empty slot
+  if (!FLAGS_cld2_liberal) {
+      for (int sub = 0; sub < doc_tote->MaxSize(); ++sub) {
+        int plang = doc_tote->Key(sub);
+        if (plang == DocTote::kUnusedKey) {continue;}               // Empty slot
 
-    Language lang = static_cast<Language>(plang);
-    int bytes = doc_tote->Value(sub);
-    int reli = doc_tote->Reliability(sub);
-    if (bytes == 0) {continue;}                     // Zero bytes
+        Language lang = static_cast<Language>(plang);
+        int bytes = doc_tote->Value(sub);
+        int reli = doc_tote->Reliability(sub);
+        if (bytes == 0) {continue;}                     // Zero bytes
 
-    // Reliable percent is stored as reliable score over stored bytecount
-    int reliable_percent = reli / bytes;
-    if (reliable_percent >= kMinReliableKeepPercent) {  // Keeper?
-       continue;                                        // yes
-    }
+        // Reliable percent is stored as reliable score over stored bytecount
+        int reliable_percent = reli / bytes;
+        if (reliable_percent >= kMinReliableKeepPercent) {  // Keeper?
+           continue;                                        // yes
+        }
 
-    // Delete unreliable entry
-    doc_tote->SetKey(sub, DocTote::kUnusedKey);
-    doc_tote->SetScore(sub, 0);
-    doc_tote->SetReliability(sub, 0);
+        // Delete unreliable entry
+        doc_tote->SetKey(sub, DocTote::kUnusedKey);
+        doc_tote->SetScore(sub, 0);
+        doc_tote->SetReliability(sub, 0);
 
-    // Show fate of unreliable languages if at least 10 bytes
-    if (FLAGS_cld2_html && (bytes >= 10) &&
-        !FLAGS_cld2_quiet) {
-      fprintf(stderr, "{Unreli %s.%dR,%dB} ",
-              LanguageCode(lang), reliable_percent, bytes);
-    }
+        // Show fate of unreliable languages if at least 10 bytes
+        if (FLAGS_cld2_html && (bytes >= 10) &&
+            !FLAGS_cld2_quiet) {
+          fprintf(stderr, "{Unreli %s.%dR,%dB} ",
+                  LanguageCode(lang), reliable_percent, bytes);
+        }
+      }
   }
 
   ////if (FLAGS_cld2_html) {fprintf(stderr, "<br>\n");}
@@ -1723,6 +1725,8 @@ Language DetectLanguageSummaryV2(
   bool FLAGS_cld2_html = ((flags & kCLDFlagHtml) != 0);
   bool FLAGS_cld2_quiet = ((flags & kCLDFlagQuiet) != 0);
 
+  bool FLAGS_cld2_liberal = ((flags & kCLDFlagLiberal) != 0);
+
   ApplyHints(buffer, buffer_length, is_plain_text, cld_hints, &scoringcontext);
 
   // Four individual script totals, Latin, Han, other2, other3
@@ -1936,7 +1940,7 @@ Language DetectLanguageSummaryV2(
     // This is the real, non-recursive return
 
     // Move bytes for unreliable langs to another lang or UNKNOWN
-    RemoveUnreliableLanguages(&doc_tote, FLAGS_cld2_html, FLAGS_cld2_quiet);
+    RemoveUnreliableLanguages(&doc_tote, FLAGS_cld2_html, FLAGS_cld2_quiet, FLAGS_cld2_liberal);
 
     // Redo the result extraction after the removal above
     doc_tote.Sort(3);
@@ -1944,13 +1948,13 @@ Language DetectLanguageSummaryV2(
                    reliable_percent3, language3, percent3, normalized_score3,
                    text_bytes, is_reliable);
 
-
-
-    Language summary_lang;
-    CalcSummaryLang(&doc_tote, total_text_bytes,
-                    reliable_percent3, language3, percent3,
-                    &summary_lang, is_reliable,
-                    FLAGS_cld2_html, FLAGS_cld2_quiet);
+    Language summary_lang = language3[0];
+    if (!FLAGS_cld2_liberal) {
+        CalcSummaryLang(&doc_tote, total_text_bytes,
+                        reliable_percent3, language3, percent3,
+                        &summary_lang, is_reliable,
+                        FLAGS_cld2_html, FLAGS_cld2_quiet);
+    }
 
     if (FLAGS_cld2_html && !FLAGS_cld2_quiet) {
       for (int i = 0; i < 3; ++i) {
