@@ -268,6 +268,8 @@ namespace CLD2 {
   static const int kCLDFlagQuiet =        0x1000;  // Less debug HTML => stderr
   static const int kCLDFlagEcho =         0x2000;  // Echo input => stderr
 
+  static const int kCLDFlagLiberal =      0x4000;  // Do not discard weak answers
+
 
 /***
 
