@@ -11,28 +11,46 @@ ifndef $(PREFIX)
 PREFIX = /usr
 endif
 
-TARGET      = cld2
+TARGET           = cld2
+VERSION_MAJOR    = 2
+VERSION_MINOR    = 0
+VERSION_REVISION = 0
+
+APP_VERSION      = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_REVISION)
+
 LIBRARY     = lib$(TARGET).so
+LIBRARY_DIR = ./internal/$(LIBRARY)
 TEST        = compact_lang_det_test_full0720
 
 INSTALL_DIR = $(PREFIX)/${libdir}
 INCLUDE_DIR = $(PREFIX)/include/$(TARGET)
 
+INTERNAL_LIBRARY_INCLUDES := $(shell find ./internal -iname '*.h')
+PUBLIC_LIBRARY_INCLUDES   := $(shell find ./public -iname '*.h')
+
 all: 
-	cd internal; ./compile_libs.sh
+	@echo Building library...
+	@cd internal; ./compile_libs.sh
 
 test:
-	cd internal; ./compile_full.sh
+	@echo Building tests...
+	@cd internal; ./compile_full.sh
 	./$(TEST)
 
 install: all
-	mkdir -p ${INSTALL_DIR} ${INCLUDE_DIR}/internal; \
-	cp ./internal/$(LIBRARY) $(INSTALL_DIR)/${LIBRARY}; \
-	cp -R ./public $(INCLUDE_DIR)/; \
-	cp -R ./internal/*.h $(INCLUDE_DIR)/internal
+	mkdir -p $(INCLUDE_DIR) $(INSTALL_DIR)
+	mkdir -m 755 $(INCLUDE_DIR)/internal $(INCLUDE_DIR)/public
+	install -m 644 $(PUBLIC_LIBRARY_INCLUDES) $(INCLUDE_DIR)/public
+	install -m 644 $(INTERNAL_LIBRARY_INCLUDES) $(INCLUDE_DIR)/internal
+	install -m 755 $(LIBRARY_DIR) $(INSTALL_DIR)/$(LIBRARY).$(APP_VERSION)
+	ln -sf $(LIBRARY).$(APP_VERSION) $(INSTALL_DIR)/$(LIBRARY).$(VERSION_MAJOR)
+	ln -sf $(LIBRARY).$(APP_VERSION) $(INSTALL_DIR)/$(LIBRARY)
+	$(LDCONFIG)
 
 uninstall:
-	rm $(INSTALL_DIR)/$(LIBRARY); \
+	rm $(INSTALL_DIR)/$(LIBRARY).$(APP_VERSION)
+	rm $(INSTALL_DIR)/$(LIBRARY).$(VERSION_MAJOR)
+	rm $(INSTALL_DIR)/$(LIBRARY)
 	rm -r $(INCLUDE_DIR)
 
 clean:
