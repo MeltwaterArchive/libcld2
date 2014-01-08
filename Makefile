@@ -68,7 +68,7 @@ check: $(ALL_TEST_OBJECTS)
 
 install: all
 	mkdir -p $(INCLUDE_DIR) $(INSTALL_DIR)
-	mkdir -m 755 $(INCLUDE_DIR)/internal $(INCLUDE_DIR)/public
+	mkdir  -p -m 755 $(INCLUDE_DIR)/internal $(INCLUDE_DIR)/public
 	install -m 644 $(PUBLIC_LIBRARY_INCLUDES) $(INCLUDE_DIR)/public
 	install -m 644 $(INTERNAL_LIBRARY_INCLUDES) $(INCLUDE_DIR)/internal
 	install -m 755 $(LIBRARY_PATH) $(INSTALL_DIR)/$(LIBRARY).$(APP_VERSION)
@@ -77,10 +77,10 @@ install: all
 	$(LDCONFIG)
 
 uninstall:
-	rm $(INSTALL_DIR)/$(LIBRARY).$(APP_VERSION)
-	rm $(INSTALL_DIR)/$(LIBRARY).$(VERSION_MAJOR)
-	rm $(INSTALL_DIR)/$(LIBRARY)
-	rm -r $(INCLUDE_DIR)
+	rm -f $(INSTALL_DIR)/$(LIBRARY).$(APP_VERSION)
+	rm -f $(INSTALL_DIR)/$(LIBRARY).$(VERSION_MAJOR)
+	rm -f $(INSTALL_DIR)/$(LIBRARY)
+	rm -rf $(INCLUDE_DIR)
 
 clean:
 	@echo Cleaning...
