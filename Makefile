@@ -58,7 +58,7 @@ ALL_TEST_OBJECTS := $(patsubst %.cc, ./internal/%.o, cld2_unittest_full.cc \
 all: $(ALL_OBJECTS)
 	@echo Building library...
 	@mkdir -p $(BUILD_PATH)
-	$(LD) $(LD_FLAGS) -shared -o $(LIBRARY_PATH) $(ALL_OBJECTS)
+	$(LD) $(LD_FLAGS) -shared -rdynamic -Wl,-soname -Wl,$(LIBRARY).$(VERSION_MAJOR) -o $(LIBRARY_PATH) $(ALL_OBJECTS)
 
 check: $(ALL_TEST_OBJECTS)
 	@echo Building tests...
