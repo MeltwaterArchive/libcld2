@@ -40,8 +40,8 @@ ALL_OBJECTS := $(patsubst %.cc, ./internal/%.o, cldutil.cc cldutil_shared.cc \
 	tote.cc utf8statetable.cc  \
 	cld_generated_cjk_uni_prop_80.cc cld2_generated_cjk_compatible.cc  \
 	cld_generated_cjk_delta_bi_32.cc generated_distinct_bi_0.cc  \
-	cld2_generated_quad0720.cc cld2_generated_deltaocta0527.cc \
-	cld2_generated_distinctocta0527.cc cld_generated_score_quad_octa_1024_256.cc )
+	cld2_generated_quad0122.cc cld2_generated_deltaocta0122.cc \
+	cld2_generated_distinctocta0122.cc  cld_generated_score_quad_octa_0122.cc )
 
 # Extracted from ./internal/compile_full.sh
 ALL_TEST_OBJECTS := $(patsubst %.cc, ./internal/%.o, cld2_unittest_full.cc \
@@ -52,8 +52,8 @@ ALL_TEST_OBJECTS := $(patsubst %.cc, ./internal/%.o, cld2_unittest_full.cc \
 	tote.cc utf8statetable.cc  \
 	cld_generated_cjk_uni_prop_80.cc cld2_generated_cjk_compatible.cc  \
 	cld_generated_cjk_delta_bi_32.cc generated_distinct_bi_0.cc  \
-	cld2_generated_quad0720.cc cld2_generated_deltaocta0527.cc \
-	cld2_generated_distinctocta0527.cc  cld_generated_score_quad_octa_1024_256.cc )
+	cld2_generated_quad0122.cc cld2_generated_deltaocta0122.cc \
+	cld2_generated_distinctocta0122.cc  cld_generated_score_quad_octa_0122.cc )
 
 all: $(ALL_OBJECTS)
 	@echo Building library...
